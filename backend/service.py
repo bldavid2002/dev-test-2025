@@ -99,6 +99,7 @@ def constructSystemPrompt(jsonSchema: str) -> str:
         ALLERGENS: use boolean values true or false based on the text, if the product is explicitly marked "free" of an allergen, set the value to false if a cross-contamination warning is present set the value to true
         NUTRITIONAL VALUES: extract the value as a string including the correct units example: '1553 kJ' or '376 kcal', '36 g' if a value is not found leave it as null or None
         OUTPUT FORMAT: You MUST strictly adhere to the provided JSON schema, do not include any text, headers, or markdown outside of the final, single JSON object
+        
         JSON SCHEMA:{jsonSchema}
         """
 

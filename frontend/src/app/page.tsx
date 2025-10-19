@@ -1,103 +1,156 @@
-import Image from "next/image";
+"use client"
+import React, {use, useState, type ChangeEvent, type FC} from 'react';
+import type { ExtractionResult, Status } from '@/types';
+import { AllergensDisplay, NutritionalValuesDisplay } from '@/components/DataDisplay';
+import { Upload, Loader2 } from '@/components/Icons';
 
-export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+const API_BASE_URL = "http://127.0.0.1:8000"
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+const App: FC = () => {
+  const [selectedFile, setSelectedFile] = useState<File|null>(null);
+  const [status, setStatus] = useState<Status>('idle');
+  const [result, setResult] = useState<ExtractionResult|null>(null);
+  const [error, setError] = useState<string|null>(null);
+
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files ? event.target.files[0] : null;
+
+      if (file && file.type !== "application/pdf"){
+        setError("Rossz file típus. Kérlek PDF file-t tölts fel") 
+        setSelectedFile(null);
+        setResult(null);;
+        setStatus('error');
+        return
+      }
+
+
+      setSelectedFile(file);
+      setError(null)
+
+      if (status === 'success' || status === 'error') {
+        setStatus('idle');
+        setResult(null);
+      }
+  };
+
+
+
+  const handleUpload = async () => {
+  if(!selectedFile){
+    setError("Kérlek válasz egy PDF filet");
+    setStatus('error');
+    return;
+  }
+
+  setStatus('loading');
+  setError(null);
+  setResult(null);
+
+  const formData = new FormData();
+  formData.append('file', selectedFile);
+
+  try{
+    const response = await fetch(`${API_BASE_URL}/extract/`,{
+      method: 'POST',
+      body: formData,
+
+    });
+
+    const data = await response.json();
+
+    if(!response.ok) {
+      const errorMessage = data.detail || `HTTP Error ${response.status}: Faild to process file.`;
+    }
+
+    setResult(data as ExtractionResult);
+    setStatus('success');
+
+  }catch(err: unknown) {
+    console.error ("Upload Failed",err);
+    let message = "Could not connect to back end API"
+    if(err instanceof Error){
+      message = err.message
+    }
+    
+    setError(`Extraction Faild: ${message}`);
+    setStatus('error');
+  }
+};
+const isButtonDisabled = (status === 'loading' || !selectedFile);
+const isError  = (status === 'error');
+const isSuccess = (status === 'success');
+
+return(
+    <div className='font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 bg-gray-900 text-white'>
+      <main className="flex flex-col gap-8 row-start-2 items-center w-full max-w-4xl">
+        <h1 className="text-4xl font-extrabold tracking-tight text-center sm:text-5xl text-blue-400">
+          Tápanyag és Allergén elemző
+        </h1>
+        <p className="text-lg text-gray-400 text-center max-w-2xl">
+          Tölts fel egy PDF dokumentumot, majd olvass egy összefoglalót a tápanyagokról és tartalmazott allergénekről.
+        </p>
+        <div className="w-full bg-gray-800 rounded-2xl p-6 shadow-2xl border border-gray-700">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            
+            <label className="flex flex-col items-center justify-center p-4 w-full sm:w-1/2 border-2 border-dashed rounded-lg cursor-pointer bg-gray-700/50 border-gray-600 hover:border-blue-400 transition-all">
+              <Upload size={24} className="text-blue-400" />
+              <span className="mt-2 text-sm text-gray-300">
+                {selectedFile ? selectedFile.name : 'Click to select a PDF file'}
+              </span>
+              <input
+                type="file"
+                accept=".pdf"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+            </label>
+            <button
+              onClick={handleUpload}
+              disabled={isButtonDisabled}
+              className={`w-full sm:w-auto h-12 px-10 rounded-full font-semibold transition-colors flex items-center justify-center gap-2 
+                ${isButtonDisabled
+                  ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                  : 'bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-500/30'
+                }`}
+            >
+              {status === 'loading' && <Loader2 size={20} className="animate-spin" />}
+              {status === 'loading' ? 'Dokumentum feldolgozása folyamatban' : 'Feldolgozás'}
+            </button>
+          </div>
+          <div className="mt-4 text-center">
+            {isError && (
+              <div className="text-red-400 font-medium p-2 bg-red-900/30 rounded-lg border border-red-800">
+                {error}
+              </div>
+            )}
+            {isSuccess && (
+              <div className="text-green-400 font-medium p-2 bg-green-900/30 rounded-lg border border-green-800">
+                Sikeres feldolgozás! Az adatokat alul olvashatod.
+              </div>
+            )}
+            {status === 'idle' && selectedFile && (
+              <div className="text-gray-400 p-2">Keszen áll az adat feldolgozásra <strong>{selectedFile.name}</strong>.</div>
+            )}
+          </div>
         </div>
+        {result && (
+          <div className="w-full mt-6 space-y-6">
+            <div className="bg-gray-800 rounded-xl p-4 shadow-2xl border border-blue-600/50">
+              <h2 className="text-2xl font-bold mb-2 text-blue-300">{result.productName}</h2>
+              <p className="text-sm text-gray-400">Language Detected: <span className="font-semibold text-gray-200">{result.language}</span></p>
+            </div>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <AllergensDisplay allergens={result.allergens} />
+              <NutritionalValuesDisplay nutritionalValues={result.nutritionalValues} />
+            </div>
+          </div>
+        )}
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
-  );
-}
+
+)
+};
+
+export default App;
+
