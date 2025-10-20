@@ -5,6 +5,7 @@ import { AllergensDisplay, NutritionalValuesDisplay } from '@/components/DataDis
 import { Upload, Loader2 } from '@/components/Icons';
 
 const API_BASE_URL = "http://127.0.0.1:8000"
+const API_RENDER_URL = "https://dev-test-2025.onrender.com"
 
 const App: FC = () => {
   const [selectedFile, setSelectedFile] = useState<File|null>(null);
@@ -50,9 +51,9 @@ const App: FC = () => {
   formData.append('file', selectedFile);
 
   try{
-    const response = await fetch(`${API_BASE_URL}/extract/`,{
-      method: 'POST',
-      body: formData,
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/extract/`, {
+        method: 'POST',
+        body: formData,
 
     });
 
