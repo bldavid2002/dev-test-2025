@@ -8,9 +8,8 @@ KNOWN_ALLERGENS = [
 ]
 
 KNOWN_NUTRIENTS = [
-    "Energy [kJ]", "Energy [kcal]", "Fat [g]",
-    "Saturated Fat [g]", "Carbohydrate [g]",
-    "Sugar [g]", "Protein [g]", "Sodium [g]", "Salt [g]"
+    "Energy [kJ]", "Energy [kcal]", "Fat [g]", "Carbohydrate [g]",
+    "Sugar [g]", "Protein [g]", "Sodium [g]"
 ]
 
 class NutritionalValue(BaseModel):
