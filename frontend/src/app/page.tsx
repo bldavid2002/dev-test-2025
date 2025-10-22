@@ -48,53 +48,35 @@ const App: FC = () => {
   setResult(null);
 
   const formData = new FormData();
-    formData.append('file', selectedFile);
+  formData.append('file', selectedFile);
 
-    const fetchOptions = {
-      method: 'POST',
-      body: formData,
-    };
+  try{
+        const response = await fetch(`${API_RENDER_URL}/extract/`, {
+        method: 'POST',
+        body: formData,
 
-    let response: Response;
+    });
+
+    const data = await response.json();
+
+    if(!response.ok) {
+      const errorMessage = data.detail || `HTTP Error ${response.status}: Faild to process file.`;
+    }
+
+    setResult(data as ExtractionResult);
+    setStatus('success');
+
+  }catch(err: unknown) {
+    console.error ("Upload Failed",err);
+    let message = "Could not connect to back end API"
+    if(err instanceof Error){
+      message = err.message
+    }
     
-    try {
-      console.log(`Attempting fetch from local API: ${API_BASE_URL_LOCAL}`);
-      response = await fetch(`${API_BASE_URL_LOCAL}/extract/`, fetchOptions);
-      
-      if (!response.ok) {
-        throw new Error(`Local API HTTP error: ${response.status}`);
-      }
-      console.log("Local API fetch successful.");
-
-    } catch (localError) {
-      console.warn("Local API failed. Switching to Render API...", localError);
-      try {
-        console.log(`Attempting fetch from Render API: ${API_BASE_URL_RENDER}`);
-        response = await fetch(`${API_BASE_URL_RENDER}/extract/`, fetchOptions);
-        
-        if (!response.ok) {
-          throw new Error(`Render API HTTP error: ${response.status}`);
-        }
-        console.log("Render API fetch successful.");
-        
-      } catch (renderError: any) {
-        console.error("Both local and Render APIs failed.", renderError);
-        setError(`Feldolgozási hiba: ${renderError.message || 'Nem sikerült csatlakozni a backendhez'}`);
-        setStatus('error');
-        return;
-      }
-    }
-
-    try {
-      const data = await response.json();
-      setResult(data as ExtractionResult);
-      setStatus('success');
-    } catch (jsonError) {
-      console.error("Failed to parse JSON response:", jsonError);
-      setError("Feldolgozási hiba: Érvénytelen válasz érkezett a szerverről.");
-      setStatus('error');
-    }
-  };
+    setError(`Extraction Faild: ${message}`);
+    setStatus('error');
+  }
+};
 const isButtonDisabled = (status === 'loading' || !selectedFile);
 const isError  = (status === 'error');
 const isSuccess = (status === 'success');
