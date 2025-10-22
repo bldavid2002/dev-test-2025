@@ -13,7 +13,7 @@ logging.basicConfig(level = logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title = "Allergén kiválasztó")
-VERCEL_APP_URL = "https://dev-test-2025-5uqz.vercel.app"
+VERCEL_APP_URL = "https://dev-test-2025-lqdy.vercel.app"
 origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
