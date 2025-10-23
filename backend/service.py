@@ -14,11 +14,9 @@ from PIL import Image
 from pdf2image import convert_from_bytes
 import logging
 
-#GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+
 MODEL_NAME =  "gemini-2.5-pro"
 
-#if not GEMINI_API_KEY:
-#    print("Warning: Gemini api key enviroment variable is not set")
 
 logger = logging.getLogger(__name__) 
 logger.setLevel(logging.INFO)
@@ -33,7 +31,6 @@ def extractTextFromPdf(fileStream: io.BytesIO) -> str:
         
             if  pageText:
                 text += pageText or ""
-        
         
         if not text.strip() or len(text.strip()) < 50:
             raise ValueError("Minimal or no text extractable")
@@ -76,12 +73,6 @@ def extractTextWithOCR(fileStream: io.BytesIO) -> str:
                     "was not found. you must install the poppler command line utility"
                     "on your OS and add its 'bin' folder to your systems's Path "
                 )
-            )
-        else:
-            logger.error(f"An unexpected OCR error occurred: {e}")
-            raise HTTPException(
-                status_code=500,
-                detail=f"An unexpected error occurred during OCR processing: {str(e)}"
             )
     finally:
         fileStream.seek(0)
