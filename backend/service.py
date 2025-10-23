@@ -34,8 +34,6 @@ def extractTextFromPdf(fileStream: io.BytesIO) -> str:
             if  pageText:
                 text += pageText or ""
         
-            else:
-                text += page.get_text() or ""
         
         if not text.strip() or len(text.strip()) < 50:
             raise ValueError("Minimal or no text extractable")
