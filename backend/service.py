@@ -77,6 +77,12 @@ def extractTextWithOCR(fileStream: io.BytesIO) -> str:
                     "on your OS and add its 'bin' folder to your systems's Path "
                 )
             )
+        else:
+            logger.error(f"An unexpected OCR error occurred: {e}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"An unexpected error occurred during OCR processing: {str(e)}"
+            )
     finally:
         fileStream.seek(0)
 
