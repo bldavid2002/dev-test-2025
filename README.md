@@ -53,6 +53,14 @@ A projekt futtatásához az alábbi eszközök telepítése szükséges:
 
 A projekt két fő részből áll: `backend` és `frontend`. Mindkettőt külön terminálban kell futtatni.
 
+### Megjegyzés a Render Szolgáltatásról
+
+**A Render-en telepített ingyenes (Free Tier) szolgáltatás a production ready verzió bemutatásához, alacsony memóriakorláttal rendelkezik. A szkennelt PDF-ek (OCR) feldolgozása rendkívül memóriaigényes.**
+
+**Emiatt a Render szolgáltatás nagyobb, szkennelt fájlok feldolgozásakor leállhat (Out-of-Memory hiba).**
+
+**Megbízható működéshez, különösen nagy vagy szkennelt PDF-ek esetén, az alkalmazás lokális (localhost) futtatása ajánlott az alábbi lépések szerint.**
+
 #### 1. Backend (FastAPI)
 
 ```bash
