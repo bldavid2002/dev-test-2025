@@ -32,8 +32,12 @@ Az alkalmazás célja, hogy strukturálatlan  PDF termékleírásokból kinyerje
 ### Felhasznált Technológiák
 
 * **Frontend:** React (Next.js), TypeScript, Tailwind CSS
-* **Backend:** Python 3.14, FastAPI
-* **AI / Adatkinyerés:** Google Gemini (Modell: gemini-1.5-pro)
+* **Backend:** Python 3.13, FastAPI
+* **AI / Adatkinyerés:** Google Gemini (Modell: gemini-3.6-flash)
+* **RAG (Retrieval-Augmented Generation) Architektúra:**
+    * **Orkesztráció:** LangChain
+    * **Vektordatabázis:** ChromaDB (lokális, memóriában/fájlban futó)
+    * **Embeddings (Beágyazás):** HuggingFace (`all-MiniLM-L6-v2` lokális modell)
 * **PDF Feldolgozás:**
     * `pypdf`: Szöveges PDF-ek olvasása.
     * `pdf2image` és `pytesseract`: Szkennelt  PDF-ek OCR.
@@ -86,6 +90,8 @@ uvicorn main:app --reload
 ```
 A backend most már fut a `http://127.0.0.1:8000` címen.
 
+Megjegyzés: A szerver legelső indításakor és az első PDF elemzésekor a rendszer letölti a HuggingFace-ről a szükséges nyelvi beágyazó (embedding) modellt (kb. 80 MB). Ehhez internetkapcsolat szükséges.
+
 #### 2. Frontend (React/Next.js)
 
 ```bash
@@ -115,3 +121,4 @@ Az alkalmazás egyetlen fő API végpontot használ:
     * `400 (Bad Request)`: Például nem PDF fájl lett feltöltve.
     * `500 (Internal Server Error)`: Általános szerverhiba  LLM API hiba.
     * `501 (Not Implemented)`: Ha az OCR-hez szükséges Poppler nincs telepítve.
+    * `429 (Too Many Requests)`: A Gemini API kvótája kimerült (Rate limit).
