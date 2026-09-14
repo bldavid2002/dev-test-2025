@@ -51,7 +51,7 @@ const App: FC = () => {
   formData.append('file', selectedFile);
 
   try{
-        const response = await fetch(`${API_RENDER_URL}/extract/`, {
+        const response = await fetch(`${API_BASE_URL}/extract/`, {
         method: 'POST',
         body: formData,
 
@@ -61,6 +61,7 @@ const App: FC = () => {
 
     if(!response.ok) {
       const errorMessage = data.detail || `HTTP Error ${response.status}: Faild to process file.`;
+      throw new Error(errorMessage);
     }
 
     setResult(data as ExtractionResult);

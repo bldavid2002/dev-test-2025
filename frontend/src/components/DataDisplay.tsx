@@ -24,7 +24,7 @@ export const AllergensDisplay: FC<{ allergens: AllergenPresence[] }> = ({ allerg
       <AlertTriangle size={20} className="mr-2" /> Allergének ellenőrzése
     </h3>
     <ul className="divide-y divide-gray-700 max-h-80 overflow-y-auto">
-      {allergens.length > 0 ? (
+      {allergens?.length > 0 ? (
         allergens.map((item, index) => <AllergenItem key={index} item={item} />)
       ) : (
         <p className="text-gray-400 p-2">Nem található allergén adatok</p>
