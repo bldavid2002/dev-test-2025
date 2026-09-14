@@ -51,7 +51,7 @@ const App: FC = () => {
   formData.append('file', selectedFile);
 
   try{
-        const response = await fetch(`${API_BASE_URL}/extract/`, {
+        const response = await fetch(`${API_RENDER_URL}/extract/`, {
         method: 'POST',
         body: formData,
 
