@@ -1,3 +1,5 @@
+import os
+import uvicorn
 import logging
 import io
 from fastapi import FastAPI, UploadFile, File, HTTPException
@@ -53,3 +55,7 @@ async def extractDataFromPdf(
     except Exception as e:
         logger.error(f"Final extraction failed with an unhandled error: {e}")
         raise HTTPException(status_code = 500, detail = "unknonw error occured durin processing")
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port)
