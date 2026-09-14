@@ -2,6 +2,8 @@
 
 Webalkalmazás, amely mesterséges intelligencia (LLM) segítségével automatikusan kinyeri az élelmiszertermékek allergénjeit és tápérték jellemzőit a feltöltött PDF dokumentumokból.
 
+Vercel url: dev-test-2025-lqdy.vercel.app
+
 
 
 ## Felhasználói Dokumentáció
